@@ -1,25 +1,37 @@
 name: kontenjan
+# Is ~5 saat dakikada bir kontrol eder, bitince kendini yeniden baslatir.
+# GitHub cron guvenilmez; sadece zincir koparsa diriltmek icin duruyor.
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: kontenjan
   cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
-      - run: python3 check.py
+      - run: python3 -u check.py
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          ROUNDS: "300"
+          INTERVAL: "60"
+          HEARTBEAT: "1"
       - name: durumu kaydet
+        if: always()
         run: |
           git config user.name kontenjan-bot
           git config user.email kontenjan-bot@users.noreply.github.com
           git add state.txt
-          git diff --cached --quiet || { git commit -m "kontenjan: $(cat state.txt)" && git push; }
+          git diff --cached --quiet || { git commit -m "kontenjan: $(cat state.txt)" && git pull -q --rebase && git push; }
+      - name: sonraki turu baslat
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run kontenjan -R ${{ github.repository }}

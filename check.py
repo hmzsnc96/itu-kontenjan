@@ -40,6 +40,14 @@ if __name__ == "__main__":
     for i in range(ROUNDS):
         if i:
             time.sleep(INTERVAL)
+        # gunluk hayattayim: TR 09:00 (UTC 06:00) turunda bir kez
+        g = time.gmtime()
+        if os.environ.get("HEARTBEAT") and g.tm_hour == 6 and g.tm_min * 60 + g.tm_sec < INTERVAL:
+            try:
+                notify("Bulut izleyici calisiyor. Son durum: %s" % old,
+                       title="ITU izleyici gunluk kontrol", prio="default")
+            except Exception as e:
+                print("heartbeat gonderilemedi:", e)
         try:
             new = get_kont()
         except Exception as e:
@@ -50,3 +58,4 @@ if __name__ == "__main__":
                 notify("onceki: %s\nsimdi: %s" % (old, new))
             open(STATE, "w").write(new + "\n")
             old = new
+            sys.stdout.flush()
