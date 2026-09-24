@@ -3,7 +3,7 @@ import html, os, re, sys, time, urllib.request
 
 URL = ("https://obs.itu.edu.tr/public/DersProgram/DersProgramSearch"
        "?programSeviyeTipiAnahtari=LU&dersBransKoduId=3")
-WATCH = [w.strip() for w in os.environ.get("WATCH", "BLG 545E,BLG 549E").split(",")]
+WATCH = [w.strip() for w in os.environ.get("WATCH", "12364,12359,15687").split(",")]
 TOPIC = os.environ["NTFY_TOPIC"]
 STATE = "state.txt"
 ROUNDS = int(os.environ.get("ROUNDS", "4"))
@@ -18,11 +18,11 @@ def get_kont():
     for r in re.findall(r"<tr.*?</tr>", t, re.S):
         c = [html.unescape(re.sub("<[^>]+>", " ", x)).strip()
              for x in re.findall(r"<t[dh].*?</t[dh]>", r, re.S)]
-        if len(c) > 10 and c[1] in WATCH:
-            found[c[1]] = c[9] + "/" + c[10]
+        if len(c) > 10 and c[0] in WATCH:
+            found[c[0]] = "%s(%s)=%s/%s" % (c[1], c[0], c[9], c[10])
     if len(found) != len(WATCH):
         raise RuntimeError("dersler bulunamadi: %s" % found)
-    return " | ".join("%s=%s" % (k, found[k]) for k in WATCH)
+    return " | ".join(found[k] for k in WATCH)
 
 
 def notify(msg, title="ITU kontenjan degisti", prio="urgent"):
