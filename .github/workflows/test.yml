@@ -1,0 +1,12 @@
+name: test
+# Bulut -> OBS -> ntfy zincirini sahte durumla dener, repoya bir sey yazmaz.
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "BULUT TEST 00/00" > state.txt && python3 -u check.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          ROUNDS: "1"
