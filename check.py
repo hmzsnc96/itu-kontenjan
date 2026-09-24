@@ -3,7 +3,7 @@ import html, os, re, sys, time, urllib.request
 
 URL = ("https://obs.itu.edu.tr/public/DersProgram/DersProgramSearch"
        "?programSeviyeTipiAnahtari=LU&dersBransKoduId=3")
-WATCH = [w.strip() for w in os.environ.get("WATCH", "12364,12359,15687").split(",")]
+WATCH = [w.strip() for w in os.environ.get("WATCH", "12364,12359").split(",")]
 TOPIC = os.environ["NTFY_TOPIC"]
 STATE = "state.txt"
 ROUNDS = int(os.environ.get("ROUNDS", "4"))
